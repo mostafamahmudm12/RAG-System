@@ -123,7 +123,7 @@ conda remove -n myproject --all
 - [Conda Cheat Sheet](https://docs.conda.io/projects/conda/en/latest/user-guide/cheatsheet.html)
 
 
-# After Installation Steps 
+## After Installation Steps 
 
 1) Create a new enviroment using the following command:
 ```bash
@@ -142,4 +142,51 @@ $ pip install -r requirements.txt
 $ cp .env.example .env
 ```
 Set your enviroment variables in the `.env` file. Like `OPENAI_API_KEY` value
+
+## Run the FastAPI server
+
+```bash
+# Start the FastAPI server using Uvicorn
+$ uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Breakdown of the Command
+
+- **`uvicorn`**: This is the ASGI server that will run your FastAPI application. It's lightweight and designed for high performance.
+
+- **`main:app`**: 
+  - **`main`**: This refers to the Python file (`main.py`) where your FastAPI application instance is defined.
+  - **`app`**: This is the FastAPI application instance created in the `main.py` file. Make sure it looks something like this:
+    ```python
+    from fastapi import FastAPI
+    
+    app = FastAPI()
+    ```
+
+- **`--reload`**: This flag enables the automatic reloading of the server when code changes are detected. It's particularly useful during development, as it allows you to see changes without needing to restart the server manually.
+
+- **`--host 0.0.0.0`**: This specifies that the server should be accessible from any IP address. If you want your server to be reachable from outside your local machine (like on a network), this option is necessary.
+
+- **`--port 8000`**: This sets the port number on which your FastAPI application will run. Port `8000` is a common choice for development, but you can change it to any available port.
+
+### Example Usage
+
+1. Ensure you have FastAPI and Uvicorn installed:
+   ```bash
+   pip install fastapi uvicorn
+   ```
+
+2. Save your FastAPI application in a file named `main.py`.
+
+3. Run the command in your terminal to start the server.
+
+### Accessing Your API
+
+- After starting the server, you can access your FastAPI application by navigating to `http://localhost:8000` in your web browser or using tools like Postman or curl.
+
+### Additional Commands
+
+- To see the automatically generated API documentation, visit:
+  - **Swagger UI**: `http://localhost:8000/docs`
+  - **ReDoc**: `http://localhost:8000/redoc`
 
