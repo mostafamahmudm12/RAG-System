@@ -190,3 +190,131 @@ $ uvicorn main:app --reload --host 0.0.0.0 --port 8000
   - **Swagger UI**: `http://localhost:8000/docs`
   - **ReDoc**: `http://localhost:8000/redoc`
 
+## Installing Docker
+ 
+Docker is required to run the MongoDB service for this project.
+ 
+### Windows & macOS
+ 
+1. Download **Docker Desktop** from [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+2. Run the installer and follow the setup wizard
+3. Launch **Docker Desktop** from your Applications or Start Menu
+4. Wait for the Docker engine to start (the whale icon in your taskbar/menu bar will stop animating)
+5. Verify the installation:
+ 
+```bash
+docker --version
+docker compose version
+```
+ 
+> **Windows users:** Docker Desktop requires WSL 2 (Windows Subsystem for Linux). The installer will prompt you to enable it automatically if it isn't already.
+ 
+### Linux
+ 
+```bash
+# Update package index
+sudo apt-get update
+ 
+# Install dependencies
+sudo apt-get install ca-certificates curl gnupg
+ 
+# Add Docker's official GPG key
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+ 
+# Add Docker repository
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+ 
+# Install Docker Engine
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+ 
+# Allow running Docker without sudo (optional but recommended)
+sudo usermod -aG docker $USER
+newgrp docker
+ 
+# Verify
+docker --version
+docker compose version
+```
+ 
+> **Note:** After adding your user to the `docker` group, you may need to log out and back in for the change to take effect.
+ 
+---
+
+## Installing MongoDB Compass
+ 
+**MongoDB Compass** is the official GUI for MongoDB. It lets you visually browse your collections, run queries, and inspect documents — very useful for debugging your RAG data.
+ 
+### Windows
+ 
+1. Go to [https://www.mongodb.com/try/download/compass](https://www.mongodb.com/try/download/compass)
+2. Select **Windows**, choose the latest stable version, and click **Download**
+3. Run the downloaded `.exe` installer
+4. Follow the setup wizard (default options are fine)
+5. Launch **MongoDB Compass** from the Start Menu
+ 
+### macOS
+ 
+1. Go to [https://www.mongodb.com/try/download/compass](https://www.mongodb.com/try/download/compass)
+2. Select **macOS** and download the `.dmg` file
+3. Open the `.dmg` and drag **MongoDB Compass** into your Applications folder
+4. Launch it from Applications
+ 
+Alternatively, install via Homebrew:
+ 
+```bash
+brew install --cask mongodb-compass
+```
+ 
+### Linux (Ubuntu/Debian)
+ 
+```bash
+# Download the .deb package
+wget https://downloads.mongodb.com/compass/mongodb-compass_1.44.0_amd64.deb
+ 
+# Install it
+sudo dpkg -i mongodb-compass_1.44.0_amd64.deb
+ 
+# Launch
+mongodb-compass
+```
+ 
+> Check the [official downloads page](https://www.mongodb.com/try/download/compass) for the latest version number.
+ 
+### Connecting Compass to Your Local MongoDB
+ 
+Once MongoDB is running via Docker Compose, open Compass and connect using:
+ 
+```
+mongodb://localhost:27017
+```
+ 
+Or if you've set a username/password in your `.env`:
+ 
+```
+mongodb://username:password@localhost:27017
+```
+ 
+From there you can browse the `mini_rag_db` database, inspect your `projects` and `data_chunks` collections, and verify that your documents are being stored and chunked correctly.
+ 
+---
+
+
+## Run Docker Compose Services
+
+```bash
+ $ cd docker
+ $ cd .env.example  .env
+
+ - update `env` with your credentials
+ ```
+
+```bash
+ $ cd docker
+ $ sudo docker compose up -d
+```
