@@ -24,7 +24,7 @@ async def upload_date(request : Request ,Project_id: str,file: UploadFile,
                     app_setings : Settings =Depends(get_settings)):
     
     # project_model = ProjectModel(db_client=request.app.db_client)
-    project_model = ProjectModel(db_client=request.app.mongodb) 
+    project_model = await ProjectModel.create_instance(db_client=request.app.mongodb) 
 
     project= await project_model.get_project_or_create_one(
         project_id=Project_id
@@ -68,9 +68,9 @@ async def process_endpoint(request : Request,project_id: str, process_request: P
 
     proccess_controller=ProcessController(project_id=project_id)
 
-    chunk_model = ChunkModel(db_client=request.app.mongodb) 
+    chunk_model = await ChunkModel.create_instance(db_client=request.app.mongodb) 
 
-    project_model = ProjectModel(db_client=request.app.mongodb) 
+    project_model = await ProjectModel.create_instance(db_client=request.app.mongodb) 
 
     project= await project_model.get_project_or_create_one(
         project_id=project_id
