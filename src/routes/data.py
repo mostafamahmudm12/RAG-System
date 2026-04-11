@@ -8,7 +8,10 @@ from models.ProjectModel import ProjectModel
 from models.ChunkModel import ChunkModel
 from models.DB_Schemes import project, data_chunk
 from models.DB_Schemes.data_chunk import DataChunk
+from models.DB_Schemes import Asset
+from models.AssetModel import AssetModel
 from bson.objectid import ObjectId
+from models.enums.AssetTypeEnum import AssetTypeEnum
 import os
 import aiofiles
 import logging
@@ -50,8 +53,22 @@ async def upload_date(request : Request ,Project_id: str,file: UploadFile,
         logger.error(f"Error uploading file: {str(e)}")
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,content={"message":ResponseSignal.FILE_UPLOAD_FAILED.value,"error":str(e)})
 
+    # Store the assets into the database
+    asset_model = await AssetModel.create_instance(db_client=request.app.mongodb)
+
+    asset_resource= Asset(
+        asset_project_id=project.id,
+        asset_type=AssetTypeEnum.FILE.value,
+        asset_name=file_id,
+        asset_size=os.path.getsize(file_path),
+    )
+
+    asset_record = await asset_model.create_asset(asset=asset_resource)
+
+
     return JSONResponse(status_code=status.HTTP_200_OK,content={"message":ResponseSignal.FILE_UPLOAD_SUCCESS.value,
-                                                                "file_path":file_path, "file_id":file_id,
+                                                                # "file_path":file_path, 
+                                                                "file_id":str(asset_record.id),
                                                                 # "project_id":str(project._id)
                                                                 })
 
