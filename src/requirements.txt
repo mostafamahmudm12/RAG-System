@@ -10,3 +10,4 @@ langchain-community==0.4.1
 Motor==3.7.1
 bson==0.5.10
 pymongo==4.7.2
+openai==2.32.0
