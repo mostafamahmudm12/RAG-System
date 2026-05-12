@@ -11,3 +11,4 @@ Motor==3.7.1
 bson==0.5.10
 pymongo==4.7.2
 openai==2.32.0
+cohere==6.1.0
