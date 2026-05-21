@@ -11,3 +11,7 @@ class ResponseSignal(Enum):
     PROCCESSING_SUCCESS = "File processed successfully"
     NO_FILES_TO_PROCESS = "No files to process"
     FILE_NOT_FOUND = "File not found with the provided file_id"
+    PROJECT_NOT_FOUND = "Project not found with the provided project_id"
+    INDEXING_FAILED = "Failed to index chunks into vector database"
+    INDEXING_SUCCESS = "Chunks indexed into vector database successfully"
+    INDEX_INFO_RETRIEVED = "Index information retrieved successfully"
