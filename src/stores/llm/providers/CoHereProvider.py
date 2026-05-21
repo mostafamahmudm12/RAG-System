@@ -3,7 +3,7 @@ from ..LLMEnums import CohereEnum , DocumentTypeEnum
 import cohere
 import logging
 
-class CoHereeProvider(LLMInterface):
+class CoHereProvider(LLMInterface):
 
     def __init__(self , api_key: str, 
                         defult_input_max_characters: int= 1000,
@@ -76,7 +76,7 @@ class CoHereeProvider(LLMInterface):
 
         response = self.client.embed(
             model= self.embedding_model_id,
-            text= [self.process_text(text)],
+            texts= [self.process_text(text)],
             input_type= input_type,
             embedding_types=['float'],
         )
