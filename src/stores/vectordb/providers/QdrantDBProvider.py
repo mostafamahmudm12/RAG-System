@@ -1,4 +1,5 @@
 from qdrant_client import models, QdrantClient
+from qdrant_client.models import PointStruct 
 from ..VectorDBInterface import VectorDBInterface
 from typing import List
 import logging
@@ -51,72 +52,137 @@ class QdrantDBProvider(VectorDBInterface):
                 return True
             
             return False
+    
+    # in this code we are using upload_records method which is not working properly with the latest version of qdrant client so we will use upsert method instead and we will change the record id to be int instead of str because qdrant client is expecting int for the record id and we will also change the batch insert method to use upsert instead of upload_records and we will also change the record id to be int instead of str in the batch insert method
 
-    def insert_one(self, collection_name: str ,text:str , vector: list, metadata: dict=None, record_id: str=None):
+    # def insert_one(self, collection_name: str ,text:str , vector: list, metadata: dict=None, record_id: str=None):
 
-            if not self.is_collection_exists(collection_name=collection_name):
-                self.logger.error(f"Collection {collection_name} does not exist.")
-                return False
+    #         if not self.is_collection_exists(collection_name=collection_name):
+    #             self.logger.error(f"Collection {collection_name} does not exist.")
+    #             return False
             
+    #         try:
+    #             _ = self.client.upload_records(
+    #                 collection_name=collection_name,
+    #                 records=[models.Record( 
+    #                                     id=[record_id],
+    #                                     vector=vector, 
+    #                                     payload={"text": text, "metadata": metadata}
+    #                                     )]
+    #             )
+    #         except Exception as e:
+    #             self.logger.error(f"Error inserting record: {str(e)}")
+    #             return False
+                
+    #         return True
+        
+    # def insert_many(self, collection_name: str, texts: List[str], vectors: List[list], metadatas: List[dict]=None, 
+    #                 record_ids: List[str]=None, batch_size: int=50):
+            
+    #         if metadatas is None:
+    #             metadatas = [None] * len(texts)
+
+    #         if record_ids is None:
+    #             record_ids = list(range(0 , len(texts)))
+
+    #         for i in range(0 , len(texts), batch_size):
+    #             batch_end = i + batch_size
+
+    #             batch_texts = texts[i:batch_end]
+    #             batch_vectors = vectors[i:batch_end]
+    #             batch_metadatas = metadatas[i:batch_end]
+    #             batch_records_ids = record_ids[i:batch_end]
+
+    #             batch_records = [
+    #                 models.Record(  
+    #                                 id=batch_records_ids[x],
+    #                                 vector=batch_vectors[x], 
+    #                                 payload={"text": batch_texts[x], "metadata": batch_metadatas[x]}
+    #                                 )
+
+    #                 for x in range(len(batch_texts))
+    #             ]   
+    #             try:
+    #                 _ = self.client.upload_records(
+    #                     collection_name=collection_name,
+    #                     records=batch_records
+    #                 )
+    #             except Exception as e:
+    #                 self.logger.error(f"Error inserting batch starting at index {i}: {str(e)}")
+    #                 return False
+
+
+    #         return True
+
+    def insert_one(self, collection_name: str, text: str, vector: list, metadata: dict=None, record_id: int=None):
+        if not self.is_collection_exists(collection_name=collection_name):
+            self.logger.error(f"Collection {collection_name} does not exist.")
+            return False
+        
+        try:
+            self.client.upsert(
+                collection_name=collection_name,
+                points=[PointStruct(
+                    id=record_id,
+                    vector=vector,
+                    payload={"text": text, "metadata": metadata}
+                )]
+            )
+        except Exception as e:
+            self.logger.error(f"Error inserting record: {str(e)}")
+            return False
+        
+        return True
+    
+
+    
+    def insert_many(self, collection_name: str, texts: List[str], vectors: List[list],
+                metadatas: List[dict]=None, record_ids: List[int]=None, batch_size: int=50):
+    
+        if metadatas is None:
+            metadatas = [None] * len(texts)
+        if record_ids is None:
+            record_ids = list(range(0, len(texts)))
+
+        for i in range(0, len(texts), batch_size):
+            batch_end = i + batch_size
+
+            batch_points = [
+                PointStruct(
+                    id=record_ids[i + x],
+                    vector=vectors[i + x],
+                    payload={"text": texts[i + x], "metadata": metadatas[i + x]}
+                )
+                for x in range(len(texts[i:batch_end]))
+            ]
+
             try:
-                _ = self.client.upload_records(
+                self.client.upsert(
                     collection_name=collection_name,
-                    records=[models.Record( 
-                                        vector=vector, 
-                                        payload={"text": text, "metadata": metadata}
-                                        )]
+                    points=batch_points
                 )
             except Exception as e:
-                self.logger.error(f"Error inserting record: {str(e)}")
+                self.logger.error(f"Error inserting batch starting at index {i}: {str(e)}")
                 return False
-                
-            return True
+
+        return True
         
-    def insert_many(self, collection_name: str, texts: List[str], vectors: List[list], metadatas: List[dict]=None, 
-                    record_ids: List[str]=None, batch_size: int=50):
-            
-            if metadatas is None:
-                metadatas = [None] * len(texts)
+    # def search_by_vector(self, collection_name: str, vector: list, limit: int =5):
 
-            if record_ids is None:
-                record_ids = [None] * len(texts)
-
-            for i in range(0 , len(texts), batch_size):
-                batch_end = i + batch_size
-
-                batch_texts = texts[i:batch_end]
-                batch_vectors = vectors[i:batch_end]
-                batch_metadatas = metadatas[i:batch_end]
-
-                batch_records = [
-                    models.Record( 
-                                    vector=batch_vectors[x], 
-                                    payload={"text": batch_texts[x], "metadata": batch_metadatas[x]}
-                                    )
-
-                    for x in range(len(batch_texts))
-                ]   
-                try:
-                    _ = self.client.upload_records(
-                        collection_name=collection_name,
-                        records=batch_records
-                    )
-                except Exception as e:
-                    self.logger.error(f"Error inserting batch starting at index {i}: {str(e)}")
-                    return False
-
-
-            return True
-        
-    def search_by_vector(self, collection_name: str, vector: list, limit: int =5):
-
-            return self.client.search(
-                collection_name=collection_name,
-                query_vector=vector,
-                limit=limit
+    #         return self.client.search(
+    #             collection_name=collection_name,
+    #             query_vector=vector,
+    #             limit=limit
                 
-            )
+    #         )
 
+    def search_by_vector(self, collection_name: str, vector: list, limit: int = 5):
+        results = self.client.query_points(
+            collection_name=collection_name,
+            query=vector,
+            limit=limit
+        )
+        return results.points
 
 
             

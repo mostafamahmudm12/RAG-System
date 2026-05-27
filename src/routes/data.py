@@ -97,9 +97,12 @@ async def process_endpoint(request : Request,project_id: str, process_request: P
     asset_model = await AssetModel.create_instance(db_client=request.app.mongodb)
     project_files_ids= {}
     if process_request.file_id:
-        asset_rocord = await asset_model.get_asset_record(
-            asset_project_id=project.id,
-            asset_name=process_request.file_id
+        # asset_rocord = await asset_model.get_asset_record(
+        #     asset_project_id=project.id,
+        #     asset_name=process_request.file_id
+        # )
+        asset_rocord = await asset_model.get_asset_by_id(
+            asset_id=process_request.file_id
         )
 
         if asset_rocord is None:
@@ -148,7 +151,9 @@ async def process_endpoint(request : Request,project_id: str, process_request: P
         )
 
         if file_chunks is None or len(file_chunks)== 0:
-            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,content={"message":ResponseSignal.PROCCESSING_FAILED.value})
+            # return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,content={"message":ResponseSignal.PROCCESSING_FAILED.value})
+            logger.error(f"Processing failed for file_id: {file_id}")
+            continue 
         
 
         file_chunks = [DataChunk(
