@@ -15,3 +15,5 @@ class ResponseSignal(Enum):
     INDEXING_FAILED = "Failed to index chunks into vector database"
     INDEXING_SUCCESS = "Chunks indexed into vector database successfully"
     INDEX_INFO_RETRIEVED = "Index information retrieved successfully"
+    NO_SEARCH_RESULTS = "No search results found for the provided query"
+    VECTORDB_SEARCH_SUCCESS = "Vector database search completed successfully"
